@@ -441,6 +441,41 @@ impl Kvm {
         Ok(msr_list)
     }
 
+    /// X86 specific call to get list of MSRs that can be passed to the KVM_GET_MSRS system ioctl.
+    ///
+    /// See the documentation for `KVM_GET_MSR_FEATURE_INDEX_LIST`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use kvm_ioctls::Kvm;
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let msr_feature_index_list = kvm.get_msr_feature_index_list().unwrap();
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_msr_feature_index_list(&self) -> Result<MsrList> {
+        let mut msr_list = 
+            MsrList::new(KVM_MAX_MSR_ENTRIES).map_err(|_| errno::Error::new(libc::ENOMEM))?;
+
+        // SAFETY: The kernel is trusted not to write beyond the bounds of the memory
+        // allocated for the struct. The limit is read from nmsrs, which is set to the allocated
+        // size (MAX_KVM_MSR_ENTRIES) above.
+        let ret = unsafe {
+            ioctl_with_mut_ptr(
+                self,
+                KVM_GET_MSR_FEATURE_INDEX_LIST(),
+                msr_list.as_mut_fam_struct_ptr(),
+            )
+        };
+        if ret < 0 {
+            return Err(errno::Error::last());
+        }
+
+        // The ioctl will also update the internal `nmsrs` with the actual count.
+        Ok(msr_list)
+    }
+
     /// Creates a VM fd using the KVM fd.
     ///
     /// See the documentation for `KVM_CREATE_VM`.

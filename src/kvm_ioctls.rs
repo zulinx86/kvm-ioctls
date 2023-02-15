@@ -133,6 +133,8 @@ ioctl_iowr_nr!(KVM_TRANSLATE, KVMIO, 0x85, kvm_translation);
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iowr_nr!(KVM_GET_MSR_INDEX_LIST, KVMIO, 0x02, kvm_msr_list);
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_iowr_nr!(KVM_GET_MSR_FEATURE_INDEX_LIST, KVMIO, 0x0a, kvm_msr_list);
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iowr_nr!(KVM_GET_MSRS, KVMIO, 0x88, kvm_msrs);
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iow_nr!(KVM_SET_MSRS, KVMIO, 0x89, kvm_msrs);
